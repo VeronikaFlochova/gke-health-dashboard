@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKE Health Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        header {
+            background: #1a1d27;
+            padding: 20px 40px;
+            border-bottom: 1px solid #2d3748;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { font-size: 22px; color: #63b3ed; font-weight: 600; }
+        header span { font-size: 13px; color: #718096; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #1a1d27;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .stat-card { text-align: center; }
+        .stat-card .number {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1;
+            margin: 8px 0;
+        }
+        .stat-card .label { font-size: 13px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+        .blue { color: #63b3ed; }
+        .green { color: #68d391; }
+        .yellow { color: #f6e05e; }
+        .red { color: #fc8181; }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            border-bottom: 1px solid #2d3748;
+        }
+        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #1e2330; }
+        tr:last-child td { border-bottom: none; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-green { background: #1a3a2a; color: #68d391; }
+        .badge-red { background: #3a1a1a; color: #fc8181; }
+        .badge-yellow { background: #3a3a1a; color: #f6e05e; }
+        .namespace-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .namespace-tag {
+            background: #2d3748;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #a0aec0;
+        }
+        .error-banner {
+            background: #3a1a1a;
+            border: 1px solid #fc8181;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: #fc8181;
+            font-size: 14px;
+        }
+        .refresh-bar {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+        .progress-bar {
+            width: 100%;
+            background: #2d3748;
+            border-radius: 4px;
+            height: 6px;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 6px;
+            border-radius: 4px;
+            background: #63b3ed;
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ GKE Health Dashboard</h1>
+        <span>Last updated: {{ metrics.last_updated }} · Auto-refresh in <span id="countdown">30</span>s</span>
+    </header>
+
+    <div class="container">
+
+        {% if metrics.error %}
+        <div class="error-banner">
+            ⚠️ {{ metrics.error }}
+        </div>
+        {% endif %}
+
+        <!-- Summary Cards -->
+        <div class="grid-4">
+            <div class="card stat-card">
+                <div class="label">Total Nodes</div>
+                <div class="number blue">{{ metrics.total_nodes }}</div>
+                <div class="label">in cluster</div>
+            </div>
+            <div class="card stat-card">
+                <div class="label">Healthy Nodes</div>
+                <div class="number green">{{ metrics.healthy_nodes }}</div>
+                <div class="label">ready</div>
+            </div>
+            <div class="card stat-card">
+                <div class="label">Running Pods</div>
+                <div class="number green">{{ metrics.pods.running }}</div>
+                <div class="label">of {{ metrics.pods.total }} total</div>
+            </div>
+            <div class="card stat-card">
+                <div class="label">Namespaces</div>
+                <div class="number blue">{{ metrics.total_namespaces }}</div>
+                <div class="label">active</div>
+            </div>
+        </div>
+
+        <!-- Pod Status + Namespaces -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="section-title">Pod Status</div>
+                <table>
+                    <tr>
+                        <th>State</th>
+                        <th>Count</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Running</td>
+                        <td>{{ metrics.pods.running }}</td>
+                        <td><span class="badge badge-green">Healthy</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pending</td>
+                        <td>{{ metrics.pods.pending }}</td>
+                        <td><span class="badge badge-yellow">Waiting</span></td>
+                    </tr>
+                    <tr>
+                        <td>Failed</td>
+                        <td>{{ metrics.pods.failed }}</td>
+                        <td><span class="badge badge-red">Error</span></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Namespaces</div>
+                <div class="namespace-grid">
+                    {% for ns in metrics.namespaces %}
+                    <span class="namespace-tag">{{ ns }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Node Details -->
+        <div class="card">
+            <div class="section-title">Node Details</div>
+            <table>
+                <tr>
+                    <th>Node Name</th>
+                    <th>Status</th>
+                    <th>CPU</th>
+                    <th>Memory</th>
+                    <th>Created</th>
+                </tr>
+                {% for node in metrics.nodes %}
+                <tr>
+                    <td>{{ node.name }}</td>
+                    <td>
+                        <span class="badge {{ 'badge-green' if node.status == 'Ready' else 'badge-red' }}">
+                            {{ node.status }}
+                        </span>
+                    </td>
+                    <td>{{ node.cpu_allocatable }} / {{ node.cpu_capacity }}</td>
+                    <td>{{ node.memory_allocatable }}</td>
+                    <td>{{ node.created }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="refresh-bar">
+            Dashboard auto-refreshes every 30 seconds
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+        </div>
+    </div>
+
+    <script>
+        let seconds = 30;
+        const countdown = document.getElementById('countdown');
+        const progress = document.getElementById('progress');
+        progress.style.width = '100%';
+
+        setInterval(() => {
+            seconds--;
+            countdown.textContent = seconds;
+            progress.style.width = (seconds / 30 * 100) + '%';
+            if (seconds <= 0) window.location.reload();
+        }, 1000);
+    </script>
+</body>
+</html>re-docker 

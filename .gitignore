@@ -1,0 +1,14 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# System
+.DS_Store
+__pycache__/
+*.pyc
+.terraform/
+.terraform.lock.hcl
+*.tfstate*

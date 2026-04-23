@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-dashboard-service
+  namespace: default
+  labels:
+    app: health-dashboard
+spec:
+  type: LoadBalancer
+  selector:
+    app: health-dashboard
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
