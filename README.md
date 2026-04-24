@@ -121,4 +121,4 @@ Read-only RBAC — the dashboard only reads cluster state. There is no reason fo
 
 Author
 Veronika Flochova
-GitHub · LinkedIn
+[GitHub](https://github.com/VeronikaFlochova) · [LinkedIn](https://www.linkedin.com/in/veronikaflochova/)
