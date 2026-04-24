@@ -27,8 +27,15 @@ Cloud Build Trigger
      Cloud Monitoring
      Uptime checks and alerting policies
 
-Stack
-LayerToolInfrastructureTerraformClusterGKE (Kubernetes)Container registryGoogle Artifact RegistryCI/CDGoogle Cloud BuildApplicationPython, FlaskMonitoringGoogle Cloud Monitoring
+#Stack
+| Layer | Tool |
+|---|---|
+| Infrastructure | Terraform |
+| Cluster | GKE (Kubernetes) |
+| Container registry | Google Artifact Registry |
+| CI/CD | Google Cloud Build |
+| Application | Python, Flask |
+| Monitoring | Google Cloud Monitoring |
 
 Project structure
 cloudeng-project/
