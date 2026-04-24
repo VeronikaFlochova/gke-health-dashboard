@@ -79,7 +79,7 @@ The VPC module creates a custom VPC with a dedicated subnet in europe-west2 and 
 The GKE module provisions a two-node cluster with a dedicated node pool inside the custom VPC.
 
 ```bash
-cdterraform
+cd terraform
 terraform init
 terraform plan
 terraform apply
