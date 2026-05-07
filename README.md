@@ -18,8 +18,6 @@ The app is a real-time GKE Health Dashboard that pulls live metrics from a runni
 
 **Live app:** http://34.147.179.233
 
-> 📹 **2-minute walkthrough:** [Watch on Loom →](#) *(replace # with your Loom link)*
-
 ---
 
 ## Architecture
