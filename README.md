@@ -196,8 +196,8 @@ kubectl get service
 
 ## Author
 
-**Veronika Flochova** · Cloud Engineer · Google Certified Associate Cloud Engineer
+**Veronika Flochova** · Cloud Architect and Cloud Engineer · Google Certified Professional Architect and Associate Cloud Engineer
 📍 London, UK
 
 [GitHub](https://github.com/VeronikaFlochova) · [LinkedIn](https://www.linkedin.com/in/veronikaflochova/) · 
-*Currently advancing towards Professional Cloud Architect certification.*
+
