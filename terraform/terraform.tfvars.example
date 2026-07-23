@@ -1,0 +1,12 @@
+# Required
+project_id = "your-gcp-project-id"
+
+# Optional, defaults shown
+# region           = "europe-west2"
+# zone             = "europe-west2-a"
+# vpc_name         = "cloudeng-vpc"
+# subnet_name      = "cloudeng-subnet"
+# subnet_cidr      = "10.10.0.0/24"
+# gke_cluster_name = "cloudeng-cluster"
+# gke_num_nodes    = 2
+# gke_machine_type = "e2-small"
