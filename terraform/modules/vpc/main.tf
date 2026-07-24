@@ -53,6 +53,6 @@ resource "google_compute_firewall" "allow_http_https" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["gke-node"]
 }
-
+pa health-dashboard
 
 
