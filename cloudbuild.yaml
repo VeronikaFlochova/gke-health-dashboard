@@ -5,8 +5,6 @@ steps:
       - 'build'
       - '-t'
       - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:$COMMIT_SHA'
-      - '-t'
-      - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:latest'
       - './app'
 
   # Step 2 - Push to Artifact Registry
@@ -15,25 +13,34 @@ steps:
       - 'push'
       - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:$COMMIT_SHA'
 
-  - name: 'gcr.io/cloud-builders/docker'
+  # Step 3 - Fill the placeholders in the manifest
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
     args:
-      - 'push'
-      - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:latest'
+      - '-c'
+      - |
+        sed -i -e "s|__PROJECT_ID__|$PROJECT_ID|g" \
+               -e "s|__IMAGE_TAG__|$COMMIT_SHA|g" \
+               k8s/deployment.yaml
+        grep image: k8s/deployment.yaml
 
-  # Step 3 - Deploy to GKE
+  # Step 4 - Apply everything and wait for the rollout
   - name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
     args:
-      - 'set'
-      - 'image'
-      - 'deployment/health-dashboard'
-      - 'health-dashboard=europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:$COMMIT_SHA'
+      - '-c'
+      - |
+        kubectl apply -f k8s/
+        kubectl rollout status deployment/health-dashboard --timeout=180s
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=europe-west2-a'
       - 'CLOUDSDK_CONTAINER_CLUSTER=cloudeng-cluster'
+
+timeout: '900s'
 
 options:
   logging: CLOUD_LOGGING_ONLY
 
 images:
   - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:$COMMIT_SHA'
-  - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:latest'
+  
