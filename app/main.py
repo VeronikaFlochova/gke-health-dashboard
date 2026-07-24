@@ -1,15 +1,13 @@
 from flask import Flask, render_template, jsonify
 from kubernetes import client, config
-import os
 import datetime
 
-# v1.1 - pipeline verification
 app = Flask(__name__)
 
 def get_kubernetes_client():
     try:
         config.load_incluster_config()
-    except:
+    except config.ConfigException:
         config.load_kube_config()
     return client.CoreV1Api()
 
