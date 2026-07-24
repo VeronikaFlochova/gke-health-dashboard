@@ -117,6 +117,8 @@ The Flask app connects to the Kubernetes API using in-cluster credentials and di
 - Pod health per namespace
 - CPU and memory allocatable per node
 
+The deployment scales between 2 and 5 replicas on CPU utilisation, with a floor of 2 so a single pod failure is not an outage.
+
 ---
 
 ## Security
