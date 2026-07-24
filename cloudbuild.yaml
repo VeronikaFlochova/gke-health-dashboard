@@ -16,6 +16,7 @@ steps:
     args:
       - '-c'
       - |
+        set -e
         sed -i -e "s|__PROJECT_ID__|$PROJECT_ID|g" \
                -e "s|__IMAGE_TAG__|$COMMIT_SHA|g" \
                k8s/deployment.yaml

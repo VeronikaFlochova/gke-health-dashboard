@@ -1,59 +1,27 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: health-dashboard
+  name: dashboard-sa
   namespace: default
-  labels:
-    app: health-dashboard
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: health-dashboard
-  template:
-    metadata:
-      labels:
-        app: health-dashboard
-    spec:
-      serviceAccountName: dashboard-sa
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 10001
-        fsGroup: 10001
-        seccompProfile:
-          type: RuntimeDefault
-      containers:
-        - name: health-dashboard
-          image: europe-west2-docker.pkg.dev/project-e2b12bf9-db94-473a-943/cloudeng-repo/health-dashboard:e285521624082269eca916776d1e1b364ef95355
-          ports:
-            - containerPort: 8080
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: ["ALL"]
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-      volumes:
-        - name: tmp
-          emptyDir: {}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dashboard-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces", "services"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dashboard-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: dashboard-sa
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: dashboard-reader
+  apiGroup: rbac.authorization.k8s.io
