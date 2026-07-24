@@ -5,7 +5,7 @@ output "vpc_name" {
 
 output "subnet_name" {
   description = "Name of the subnet"
-  value       = google_compute_subnetwork.subent.name
+  value       = google_compute_subnetwork.subnet.name
 }
 
 output "vpc_id" {
