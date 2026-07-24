@@ -30,17 +30,7 @@ steps:
     args:
       - '-c'
       - |
+        gcloud container clusters get-credentials cloudeng-cluster \
+          --zone europe-west2-a --project $PROJECT_ID
         kubectl apply -f k8s/
         kubectl rollout status deployment/health-dashboard --timeout=180s
-    env:
-      - 'CLOUDSDK_COMPUTE_ZONE=europe-west2-a'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=cloudeng-cluster'
-
-timeout: '900s'
-
-options:
-  logging: CLOUD_LOGGING_ONLY
-
-images:
-  - 'europe-west2-docker.pkg.dev/$PROJECT_ID/cloudeng-repo/health-dashboard:$COMMIT_SHA'
-  
