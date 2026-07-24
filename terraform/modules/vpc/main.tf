@@ -1,10 +1,15 @@
+moved {
+  from = google_compute_subnetwork.subent
+  to   = google_compute_subnetwork.subnet
+}
+
 resource "google_compute_network" "vpc" {
   name                    = var.vpc_name
   project                 = var.project_id
   auto_create_subnetworks = false
 }
 
-resource "google_compute_subnetwork" "subent" {
+resource "google_compute_subnetwork" "subnet" {
   name          = var.subnet_name
   project       = var.project_id
   region        = var.region
@@ -32,6 +37,7 @@ resource "google_compute_firewall" "allow_internal" {
   }
 
   source_ranges = [var.subnet_cidr]
+  target_tags   = ["gke-node"]
 }
 
 resource "google_compute_firewall" "allow_http_https" {
@@ -45,6 +51,8 @@ resource "google_compute_firewall" "allow_http_https" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["gke-node"]
 }
+
 
 
